@@ -10,6 +10,7 @@ import {
   IconUserBolt,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { Logo, LogoIcon } from "@/components/global/Logos";
 
 const stocks = ['NASDAQ:AAPL', 'NASDAQ:GOOGL', 'NASDAQ:MSFT'];
 const links = [
@@ -51,6 +52,7 @@ export default function Home() {
 
   return (
     <main className="flex">
+
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10 h-screen">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
@@ -80,10 +82,23 @@ export default function Home() {
           </div>
         </SidebarBody>
       </Sidebar>
-      <div className="text-7xl flex items-center justify-center w-full">
+
+      <div className="text-7xl flex-col gap-7 flex items-center justify-center w-full">
         Welcome to
         <Image src="/logo.png" alt="alt" width={450} height={450} />
+
+        <p className="flex text-base "> go to
+          <span
+            className="text-blue-400 ml-1 underline"
+          >
+            <Link href={'/charts'}>
+              charts
+            </Link>
+          </span>
+        </p>
+
       </div>
+
       <StockSidebar
         stocks={stocks}
         selectedStock={selectedStock}
@@ -94,28 +109,3 @@ export default function Home() {
 }
 
 
-export const Logo = () => {
-  return (
-    <Link
-      href="#"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-    >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-      <span
-        className="font-medium text-black dark:text-white whitespace-pre"
-      >
-        TradeZen Pro
-      </span>
-    </Link>
-  );
-};
-export const LogoIcon = () => {
-  return (
-    <Link
-      href="#"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-    >
-      <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-    </Link>
-  );
-};
