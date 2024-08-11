@@ -8,10 +8,10 @@ interface TimeframeSelectorProps {
 }
 
 const TimeframeSelector: React.FC<TimeframeSelectorProps> = ({ onChange, selectedTimeframe }) => {
-    const timeframes = ['1m', '3m', '5m', '10m', '15m', '30m', '1H', '1D', '1W', '1M', '1Y', 'All'];
+    const timeframes = ['1min', '5min', '15min', '30min', '45min', '1h', '2h', '4h', '8h', '1day', '1week', '1month'];
 
     return (
-        <div className="timeframe-selector">
+        <div className="timeframe-selector border-2 box-border border-gray-300 block">
             {timeframes.map((timeframe) => (
                 <Button
                     key={timeframe}

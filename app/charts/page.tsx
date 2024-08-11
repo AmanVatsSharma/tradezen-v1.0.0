@@ -1,25 +1,29 @@
 // src/pages/index.tsx
 'use client'
 import React, { useEffect, useState } from 'react';
-import { fetchStockData } from '@/utils/fetchStockData';
 import StockSidebar from '@/components/StockSidebar';
 import Charts from '@/components/Chart';
 import { ChartSkeleton } from '@/components/ChartSkeleton';
 import TimeframeSelector from '@/components/TimeframeSelector';
+import { fetchStockData } from '@/pages/api/twelveData';
+import { formatTwelveData } from '@/utils/DataParserTD';
+import TestCharts from '@/components/TestCharts';
+import InfoBox from '@/components/InfoBox';
 
 type Props = {}
 
 type StockData = {
-  time: number; // Unix timestamp
-  open: number;
-  high: number;
-  low: number;
-  close: number;
+  time: string | number | Date;
+  open: string | number;
+  high: string | number;
+  low: string | number;
+  close: string | number;
+  volume?: string | number
+
 };
 
 
 const demoData: StockData[] = [
-  // Use Unix timestamps for demo data as well
   { time: 1513977600, open: 75.16, high: 82.84, low: 36.16, close: 45.72 },
   { time: 1514064000, open: 45.12, high: 53.90, low: 45.12, close: 48.09 },
   { time: 1514150400, open: 60.71, high: 60.71, low: 53.39, close: 59.29 },
@@ -32,35 +36,46 @@ const demoData: StockData[] = [
   { time: 1514755200, open: 109.87, high: 114.69, low: 85.66, close: 111.26 },
 ];
 
-const stocks = ['AAPL', 'GOOGL', 'MSFT'];
+const stocks = ['AAPL', 'GOOGL', 'MSFT', 'INFY', 'RELIANCE', 'HDFCBANK', 'ICICIBANK'];
 
 const Page = (props: Props) => {
   const [selectedStock, setSelectedStock] = useState(stocks[0]);
   const [stockData, setStockData] = useState<StockData[]>(demoData);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedTimeframe, setSelectedTimeframe] = useState('1D');
+  const [selectedTimeframe, setSelectedTimeframe] = useState('1day');
+  const [watchlists, setWatchlists] = useState([]);
+  const [selectedWatchlist, setSelectedWatchlist] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const getData = async () => {
-      setIsLoading(true);
-      const data = await fetchStockData(selectedStock, selectedTimeframe);
-      setStockData(data.length ? data : demoData); // Fallback to demo data if API call fails
-      setIsLoading(false); // End loading
+      const stockObject = await fetchStockData(selectedStock, selectedTimeframe);
+      const data = stockObject.values
+      const formattedData = await formatTwelveData(data)
+      const sortedData = formattedData.sort((a, b) => a.time - b.time);
+
+      setStockData(sortedData ? sortedData : demoData);
+      setIsLoading(false);
+      console.log(sortedData)
     };
     getData();
   }, [selectedStock, selectedTimeframe]);
 
   return (
-    <div className='flex'>
-      <div className="flex-1 p-3">
-        {/* <TimeframeSelector
+    <div className='flex relative w-screen h-screen overflow-x-hidden'>
+
+      <div className="flex-1 w-full h-screen">
+        <TimeframeSelector
           selectedTimeframe={selectedTimeframe}
           onChange={setSelectedTimeframe}
-        /> */}
+        />
 
-        <Charts data={stockData} isLoading={isLoading} />
-        {/* <ChartSkeleton/> */}
+        {/* <Charts data={stockData} isLoading={isLoading} /> */}
+        <TestCharts data={stockData} isLoading={isLoading} />;
+
       </div>
+      <InfoBox selectedStock={selectedStock} />
       <StockSidebar
         stocks={stocks}
         selectedStock={selectedStock}

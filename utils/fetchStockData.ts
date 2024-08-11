@@ -4,7 +4,7 @@ const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
 
 
 type StockData = {
-    time: number; // Unix timestamp
+    time: number;
     open: number;
     high: number;
     low: number;
@@ -41,7 +41,7 @@ export const fetchStockData = async (symbol: string, timeframe: string): Promise
 
         const response = await axios.get(`https://www.alphavantage.co/query`, {
             params: {
-                function: 'TIME_SERIES_INTRADAY', // or other functions based on the timeframe
+                function: 'TIME_SERIES_INTRADAY', 
                 symbol,
                 interval,
                 outputsize,
@@ -55,7 +55,7 @@ export const fetchStockData = async (symbol: string, timeframe: string): Promise
         }
 
         const stockData: StockData[] = Object.keys(data).map((time) => ({
-            time: new Date(time).getTime() / 1000, // Convert to Unix timestamp
+            time: new Date(time).getTime() / 1000, 
             open: parseFloat(data[time]['1. open']),
             high: parseFloat(data[time]['2. high']),
             low: parseFloat(data[time]['3. low']),

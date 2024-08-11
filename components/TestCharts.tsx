@@ -8,7 +8,7 @@ interface ChartProps {
     isLoading: boolean;
 }
 
-const Charts: React.FC<ChartProps> = ({ data, isLoading }) => {
+const TestCharts: React.FC<ChartProps> = ({ data, isLoading }) => {
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<any>(null);
     const [tooltip, setTooltip] = useState({ price: 0, time: '' });
@@ -18,7 +18,7 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading }) => {
 
         const chart = createChart(chartContainerRef.current, {
             width: chartContainerRef.current.clientWidth,
-            height: chartContainerRef.current.clientHeight ,
+            height: chartContainerRef.current.clientHeight || 100,
             layout: {
                 textColor: '#191919',
             },
@@ -55,11 +55,13 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading }) => {
 
         const handleResize = () => {
             if (chartContainerRef.current) {
-                chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+                chart.resize(chartContainerRef.current.clientWidth, chartContainerRef.current.clientHeight);
             }
         };
 
         window.addEventListener('resize', handleResize);
+
+        handleResize();
 
         return () => {
             window.removeEventListener('resize', handleResize);
@@ -68,13 +70,13 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading }) => {
     }, [data]);
 
     return (
-        <div className="relative">
-            <div ref={chartContainerRef} style={{ width: '100%', height: '100%' }}>
-                {isLoading && <ChartSkeleton />}
+        <div className="relative w-full h-full">
+            <div className=" border-2 box-border border-gray-700 w-full h-full" ref={chartContainerRef} >
+                {/* {isLoading && <ChartSkeleton />} */}
             </div>
             <ChartTooltip price={tooltip.price} time={tooltip.time} />
         </div>
     );
 };
 
-export default Charts;
+export default TestCharts;
