@@ -71,8 +71,8 @@ const TestCharts: React.FC<ChartProps> = ({ data, isLoading }) => {
 
     return (
         <div className="relative w-full h-full">
-            <div className=" border-2 box-border border-gray-700 w-full h-full" ref={chartContainerRef} >
-                {/* {isLoading && <ChartSkeleton />} */}
+            <div className=" border-2 box-border border-gray-200 w-full h-full" ref={chartContainerRef} >
+                {isLoading && <ChartSkeleton />}
             </div>
             <ChartTooltip price={tooltip.price} time={tooltip.time} />
         </div>

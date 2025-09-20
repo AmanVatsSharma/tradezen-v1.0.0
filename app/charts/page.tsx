@@ -7,6 +7,7 @@ import TimeframeSelector from '@/components/TimeframeSelector'
 import InfoBox from '@/components/InfoBox'
 import CandlestickChart from '@/components/enterprise/CandlestickChart'
 import { fetchTimeSeries } from '@/utils/fetchTimeSeries'
+import WatchlistPanel from '@/components/WatchlistPanel'
 
 type Props = {}
 
@@ -41,6 +42,7 @@ const Page = (props: Props) => {
   const [stockData, setStockData] = useState<StockData[]>(demoData)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedTimeframe, setSelectedTimeframe] = useState('1day')
+  const [showVolume, setShowVolume] = useState<boolean>(true)
 
   useEffect(() => {
     const getData = async () => {
@@ -78,19 +80,41 @@ const Page = (props: Props) => {
       </div>
 
       <div className="flex-1 w-full h-screen flex flex-col">
-        <div className="px-2 sm:px-4 py-2 border-b">
+        <div className="px-2 sm:px-4 py-2 border-b flex items-center gap-2">
           <TimeframeSelector
             selectedTimeframe={selectedTimeframe}
             onChange={setSelectedTimeframe}
           />
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              className={`px-3 py-1.5 rounded-md border text-xs ${showVolume ? 'bg-accent' : 'bg-background'}`}
+              onClick={() => setShowVolume(v => !v)}
+            >
+              Volume
+            </button>
+            <button
+              className="px-3 py-1.5 rounded-md border text-xs bg-background hover:bg-accent/50"
+              onClick={() => {
+                // trigger refetch by toggling timeframe quickly
+                setSelectedTimeframe(tf => tf)
+              }}
+            >
+              Refresh
+            </button>
+          </div>
         </div>
         <div className="relative flex-1">
           {isLoading && <ChartSkeleton />}
-          <CandlestickChart data={stockData} showVolume className="absolute inset-0" />
+          <CandlestickChart data={stockData} showVolume={showVolume} className="absolute inset-0" />
         </div>
       </div>
 
-      <InfoBox selectedStock={selectedStock} />
+      <div className='hidden xl:flex w-[360px] h-screen border-l bg-background/40 flex-col'>
+        <div className='p-3 border-b'>
+          <WatchlistPanel selected={selectedStock} onSelect={setSelectedStock} />
+        </div>
+        <InfoBox selectedStock={selectedStock} />
+      </div>
     </div>
   )
 };

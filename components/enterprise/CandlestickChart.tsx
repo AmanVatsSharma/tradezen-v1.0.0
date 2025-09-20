@@ -47,8 +47,8 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({ data, isLoading, sh
         visible: boolean
     }>({ time: null, open: null, high: null, low: null, close: null, volume: null, x: 0, y: 0, visible: false })
 
-    const preparedData = useMemo(() => {
-        return (data || []).map(d => ({
+    const preparedData = useMemo((): { time: Time; open: number; high: number; low: number; close: number }[] => {
+        return (data || []).map((d: Candle) => ({
             time: d.time as Time,
             open: d.open,
             high: d.high,
@@ -57,8 +57,8 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({ data, isLoading, sh
         }))
     }, [data])
 
-    const preparedVolume = useMemo(() => {
-        return (data || []).map(d => ({
+    const preparedVolume = useMemo((): { time: Time; value: number; color: string }[] => {
+        return (data || []).map((d: Candle) => ({
             time: d.time as Time,
             value: d.volume || 0,
             color: d.close >= d.open ? '#16a34a' : '#dc2626',
@@ -124,13 +124,13 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({ data, isLoading, sh
             priceChart.timeScale().subscribeVisibleLogicalRangeChange(sync)
 
             // Crosshair sync and tooltip
-            priceChart.subscribeCrosshairMove(param => {
+            priceChart.subscribeCrosshairMove((param: any) => {
                 if (!param.point || !param.time) {
-                    setTooltip(t => ({ ...t, visible: false }))
+                    setTooltip((t) => ({ ...t, visible: false }))
                     return
                 }
                 const cdata = candleSeries.coordinateToPrice(param.point.y)
-                const seriesData = param.seriesData.get(candleSeries) as any
+                const seriesData = param.seriesData.get(candleSeries as any) as any
                 setTooltip({
                     time: (param.time as number) || null,
                     open: seriesData?.open ?? null,
@@ -150,12 +150,12 @@ const CandlestickChart: React.FC<CandlestickChartProps> = ({ data, isLoading, sh
             })
         } else {
             // Tooltip for single chart
-            priceChart.subscribeCrosshairMove(param => {
+            priceChart.subscribeCrosshairMove((param: any) => {
                 if (!param.point || !param.time) {
-                    setTooltip(t => ({ ...t, visible: false }))
+                    setTooltip((t) => ({ ...t, visible: false }))
                     return
                 }
-                const seriesData = param.seriesData.get(candleSeries) as any
+                const seriesData = param.seriesData.get(candleSeries as any) as any
                 setTooltip({
                     time: (param.time as number) || null,
                     open: seriesData?.open ?? null,

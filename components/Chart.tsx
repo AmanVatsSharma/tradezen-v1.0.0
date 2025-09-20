@@ -55,7 +55,7 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading }) => {
 
         const handleResize = () => {
             if (chartContainerRef.current) {
-                chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+                chart.resize(chartContainerRef.current.clientWidth, chartContainerRef.current.clientHeight || 300);
             }
         };
 
