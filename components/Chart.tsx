@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { createChart, CrosshairMode, IChartApi, ISeriesApi, Time, PriceScaleMode } from 'lightweight-charts';
+import { createChart, CrosshairMode, IChartApi, ISeriesApi, Time, PriceScaleMode, ColorType } from 'lightweight-charts';
 import ChartTooltip from './ChartTooltip';
 import { ChartSkeleton } from './ChartSkeleton';
 
@@ -119,7 +119,7 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading, showVolume = true, show
         const priceChart = createChart(priceContainerRef.current, {
             width: priceContainerRef.current.clientWidth,
             height: Math.max(120, Math.floor((wrapperRef.current?.clientHeight || 500) * ((showVolume || showRSI) ? 0.68 : 0.98))),
-            layout: { textColor: '#111827', background: { type: 'Solid', color: 'transparent' } },
+            layout: { textColor: '#111827', background: { type: ColorType.Solid, color: 'transparent' } },
             grid: {
                 vertLines: { color: 'rgba(17,24,39,0.08)' },
                 horzLines: { color: 'rgba(17,24,39,0.08)' },
@@ -163,7 +163,7 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading, showVolume = true, show
             const volumeChart = createChart(volumeContainerRef.current, {
                 width: volumeContainerRef.current.clientWidth,
                 height: Math.max(68, Math.floor((wrapperRef.current?.clientHeight || 500) * (showRSI ? 0.16 : 0.28))),
-                layout: { textColor: '#4b5563', background: { type: 'Solid', color: 'transparent' } },
+                layout: { textColor: '#4b5563', background: { type: ColorType.Solid, color: 'transparent' } },
                 grid: {
                     vertLines: { color: 'rgba(17,24,39,0.06)' },
                     horzLines: { color: 'rgba(17,24,39,0.06)' },
@@ -188,7 +188,7 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading, showVolume = true, show
             const rsiChart = createChart(rsiContainerRef.current, {
                 width: rsiContainerRef.current.clientWidth,
                 height: Math.max(68, Math.floor((wrapperRef.current?.clientHeight || 500) * (showVolume ? 0.16 : 0.28))),
-                layout: { textColor: '#4b5563', background: { type: 'Solid', color: 'transparent' } },
+                layout: { textColor: '#4b5563', background: { type: ColorType.Solid, color: 'transparent' } },
                 grid: {
                     vertLines: { color: 'rgba(17,24,39,0.06)' },
                     horzLines: { color: 'rgba(17,24,39,0.06)' },
@@ -198,7 +198,7 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading, showVolume = true, show
                 crosshair: { mode: CrosshairMode.Normal },
             });
             rsiChartRef.current = rsiChart;
-            const rsiSeries = rsiChart.addLineSeries({ color: '#8b5cf6', lineWidth: 1.5 });
+            const rsiSeries = rsiChart.addLineSeries({ color: '#8b5cf6', lineWidth: 2 });
             rsiSeries.setData(rsiValues);
             rsiSeries.createPriceLine({ price: 70, color: 'rgba(148,163,184,0.7)' });
             rsiSeries.createPriceLine({ price: 30, color: 'rgba(148,163,184,0.7)' });
@@ -307,7 +307,7 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading, showVolume = true, show
         }
         if (showRSI) {
             if (!rsiSeriesRef.current && rsiChartRef.current) {
-                rsiSeriesRef.current = rsiChartRef.current.addLineSeries({ color: '#8b5cf6', lineWidth: 1.5 });
+                rsiSeriesRef.current = rsiChartRef.current.addLineSeries({ color: '#8b5cf6', lineWidth: 2 });
                 rsiSeriesRef.current.createPriceLine({ price: 70, color: 'rgba(148,163,184,0.7)' });
                 rsiSeriesRef.current.createPriceLine({ price: 30, color: 'rgba(148,163,184,0.7)' });
             }
@@ -336,7 +336,7 @@ const Charts: React.FC<ChartProps> = ({ data, isLoading, showVolume = true, show
             // add/update
             compareSeries.forEach((s, idx) => {
                 if (!existing[s.id]) {
-                    existing[s.id] = priceChartRef.current!.addLineSeries({ color: s.color || ['#0ea5e9','#22c55e','#ef4444','#a855f7','#eab308'][idx % 5], lineWidth: 1.5 });
+                    existing[s.id] = priceChartRef.current!.addLineSeries({ color: s.color || ['#0ea5e9','#22c55e','#ef4444','#a855f7','#eab308'][idx % 5], lineWidth: 2 });
                 }
                 existing[s.id].setData(s.data);
             });
