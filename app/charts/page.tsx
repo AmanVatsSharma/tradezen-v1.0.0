@@ -1,14 +1,12 @@
 // src/pages/index.tsx
 'use client'
-import React, { useEffect, useState } from 'react';
-import StockSidebar from '@/components/StockSidebar';
-import Charts from '@/components/Chart';
-import { ChartSkeleton } from '@/components/ChartSkeleton';
-import TimeframeSelector from '@/components/TimeframeSelector';
-import { fetchStockData } from '@/pages/api/twelveData';
-import { formatTwelveData } from '@/utils/DataParserTD';
-import TestCharts from '@/components/TestCharts';
-import InfoBox from '@/components/InfoBox';
+import React, { useEffect, useState } from 'react'
+import StockSidebar from '@/components/StockSidebar'
+import { ChartSkeleton } from '@/components/ChartSkeleton'
+import TimeframeSelector from '@/components/TimeframeSelector'
+import InfoBox from '@/components/InfoBox'
+import Charts from '@/components/Chart'
+import { fetchTimeSeries } from '@/utils/fetchTimeSeries'
 
 type Props = {}
 
@@ -39,50 +37,103 @@ const demoData: StockData[] = [
 const stocks = ['AAPL', 'GOOGL', 'MSFT', 'INFY', 'RELIANCE', 'HDFCBANK', 'ICICIBANK'];
 
 const Page = (props: Props) => {
-  const [selectedStock, setSelectedStock] = useState(stocks[0]);
-  const [stockData, setStockData] = useState<StockData[]>(demoData);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedTimeframe, setSelectedTimeframe] = useState('1day');
-  const [watchlists, setWatchlists] = useState([]);
-  const [selectedWatchlist, setSelectedWatchlist] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [selectedStock, setSelectedStock] = useState(stocks[0])
+  const [stockData, setStockData] = useState<StockData[]>(demoData)
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedTimeframe, setSelectedTimeframe] = useState('1day')
+  const [showVolume, setShowVolume] = useState<boolean>(true)
+  const [showSMA, setShowSMA] = useState<boolean>(false)
+  const [showEMA, setShowEMA] = useState<boolean>(false)
+  const [showRSI, setShowRSI] = useState<boolean>(false)
 
   useEffect(() => {
     const getData = async () => {
-      const stockObject = await fetchStockData(selectedStock, selectedTimeframe);
-      const data = stockObject.values
-      const formattedData = await formatTwelveData(data)
-      const sortedData = formattedData.sort((a, b) => a.time - b.time);
-
-      setStockData(sortedData ? sortedData : demoData);
-      setIsLoading(false);
-      console.log(sortedData)
-    };
-    getData();
-  }, [selectedStock, selectedTimeframe]);
+      try {
+        setIsLoading(true)
+        const ts = await fetchTimeSeries(`${selectedStock}:NASDAQ`, selectedTimeframe)
+        const values = ts.values || []
+        const formatted = values.map((v) => ({
+          time: new Date(v.datetime).getTime() / 1000,
+          open: parseFloat(v.open),
+          high: parseFloat(v.high),
+          low: parseFloat(v.low),
+          close: parseFloat(v.close),
+          volume: v.volume ? parseInt(v.volume) : undefined,
+        })) as StockData[]
+        const sortedData = formatted.sort((a, b) => (a.time as number) - (b.time as number))
+        setStockData(sortedData.length ? sortedData : demoData)
+      } catch (e) {
+        setStockData(demoData)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    getData()
+  }, [selectedStock, selectedTimeframe])
 
   return (
-    <div className='flex relative w-screen h-screen overflow-x-hidden'>
-
-      <div className="flex-1 w-full h-screen">
-        <TimeframeSelector
-          selectedTimeframe={selectedTimeframe}
-          onChange={setSelectedTimeframe}
+    <div className='flex w-screen h-screen overflow-hidden'>
+      <div className="hidden lg:block">
+        <StockSidebar
+          stocks={stocks}
+          selectedStock={selectedStock}
+          onSelectStock={setSelectedStock}
         />
-
-        {/* <Charts data={stockData} isLoading={isLoading} /> */}
-        <TestCharts data={stockData} isLoading={isLoading} />;
-
       </div>
+
+      <div className="flex-1 w-full h-screen flex flex-col">
+        <div className="px-2 sm:px-4 py-2 border-b flex items-center gap-2">
+          <TimeframeSelector
+            selectedTimeframe={selectedTimeframe}
+            onChange={setSelectedTimeframe}
+          />
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              className={`px-3 py-1.5 rounded-md border text-xs ${showVolume ? 'bg-accent' : 'bg-background'}`}
+              onClick={() => setShowVolume((v: boolean) => !v)}
+            >
+              Volume
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-md border text-xs ${showSMA ? 'bg-accent' : 'bg-background'}`}
+              onClick={() => setShowSMA((v: boolean) => !v)}
+            >
+              SMA
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-md border text-xs ${showEMA ? 'bg-accent' : 'bg-background'}`}
+              onClick={() => setShowEMA((v: boolean) => !v)}
+            >
+              EMA
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-md border text-xs ${showRSI ? 'bg-accent' : 'bg-background'}`}
+              onClick={() => setShowRSI((v: boolean) => !v)}
+            >
+              RSI
+            </button>
+            <button
+              className="px-3 py-1.5 rounded-md border text-xs bg-background hover:bg-accent/50"
+              onClick={() => {
+                // trigger refetch by toggling timeframe quickly
+                setSelectedTimeframe((tf: string) => tf)
+              }}
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+        <div className="relative flex-1">
+          {isLoading && <ChartSkeleton />}
+          <div className="absolute inset-0">
+            <Charts data={stockData as any} isLoading={false} showVolume={showVolume} showSMA={showSMA} showEMA={showEMA} showRSI={showRSI} />
+          </div>
+        </div>
+      </div>
+
       <InfoBox selectedStock={selectedStock} />
-      <StockSidebar
-        stocks={stocks}
-        selectedStock={selectedStock}
-        onSelectStock={setSelectedStock}
-      />
     </div>
-  );
+  )
 };
 
 export default Page;

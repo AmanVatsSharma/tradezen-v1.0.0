@@ -2,11 +2,9 @@ import axios from 'axios';
 
 
 export const fetchStockData = async (selectedStock: String, selectedTimeframe: String) => {
-
-    const API_KEY = process.env.TWELVE_DATA_API_KEY
-
-    const url = `https://api.twelvedata.com/time_series?symbol=${selectedStock}:NASDAQ&interval=${selectedTimeframe}&outputsize=1200&apikey=77c05afbaac14e4f8d02c61e1a12b0ea`
-
+    const apiKey = process.env.TWELVE_DATA_API_KEY
+    const symbol = `${selectedStock}:NASDAQ`
+    const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${selectedTimeframe}&outputsize=1200&apikey=${apiKey}`
 
     try {
         const reponse = await axios.get(url)
