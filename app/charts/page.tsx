@@ -5,9 +5,8 @@ import StockSidebar from '@/components/StockSidebar'
 import { ChartSkeleton } from '@/components/ChartSkeleton'
 import TimeframeSelector from '@/components/TimeframeSelector'
 import InfoBox from '@/components/InfoBox'
-import CandlestickChart from '@/components/enterprise/CandlestickChart'
+import Charts from '@/components/Chart'
 import { fetchTimeSeries } from '@/utils/fetchTimeSeries'
-import WatchlistPanel from '@/components/WatchlistPanel'
 
 type Props = {}
 
@@ -43,6 +42,9 @@ const Page = (props: Props) => {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedTimeframe, setSelectedTimeframe] = useState('1day')
   const [showVolume, setShowVolume] = useState<boolean>(true)
+  const [showSMA, setShowSMA] = useState<boolean>(false)
+  const [showEMA, setShowEMA] = useState<boolean>(false)
+  const [showRSI, setShowRSI] = useState<boolean>(false)
 
   useEffect(() => {
     const getData = async () => {
@@ -88,15 +90,33 @@ const Page = (props: Props) => {
           <div className="ml-auto flex items-center gap-2">
             <button
               className={`px-3 py-1.5 rounded-md border text-xs ${showVolume ? 'bg-accent' : 'bg-background'}`}
-              onClick={() => setShowVolume(v => !v)}
+              onClick={() => setShowVolume((v: boolean) => !v)}
             >
               Volume
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-md border text-xs ${showSMA ? 'bg-accent' : 'bg-background'}`}
+              onClick={() => setShowSMA((v: boolean) => !v)}
+            >
+              SMA
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-md border text-xs ${showEMA ? 'bg-accent' : 'bg-background'}`}
+              onClick={() => setShowEMA((v: boolean) => !v)}
+            >
+              EMA
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-md border text-xs ${showRSI ? 'bg-accent' : 'bg-background'}`}
+              onClick={() => setShowRSI((v: boolean) => !v)}
+            >
+              RSI
             </button>
             <button
               className="px-3 py-1.5 rounded-md border text-xs bg-background hover:bg-accent/50"
               onClick={() => {
                 // trigger refetch by toggling timeframe quickly
-                setSelectedTimeframe(tf => tf)
+                setSelectedTimeframe((tf: string) => tf)
               }}
             >
               Refresh
@@ -105,16 +125,13 @@ const Page = (props: Props) => {
         </div>
         <div className="relative flex-1">
           {isLoading && <ChartSkeleton />}
-          <CandlestickChart data={stockData} showVolume={showVolume} className="absolute inset-0" />
+          <div className="absolute inset-0">
+            <Charts data={stockData as any} isLoading={false} showVolume={showVolume} showSMA={showSMA} showEMA={showEMA} showRSI={showRSI} />
+          </div>
         </div>
       </div>
 
-      <div className='hidden xl:flex w-[360px] h-screen border-l bg-background/40 flex-col'>
-        <div className='p-3 border-b'>
-          <WatchlistPanel selected={selectedStock} onSelect={setSelectedStock} />
-        </div>
-        <InfoBox selectedStock={selectedStock} />
-      </div>
+      <InfoBox selectedStock={selectedStock} />
     </div>
   )
 };
