@@ -14,10 +14,13 @@ import {
   BarData,
   CandlestickStyleOptions,
   ColorType,
+  HistogramData,
   IChartApi,
   ISeriesApi,
+  LineData,
   LineStyle,
   SeriesDataItemTypeMap,
+  Time,
   createChart,
 } from 'lightweight-charts';
 
@@ -198,8 +201,13 @@ export const ChartViewport: React.FC<ChartViewportProps> = ({
     if (!volumeSeriesRef.current) {
       volumeSeriesRef.current = priceChartRef.current.addHistogramSeries({
         priceFormat: { type: 'volume' },
-        priceScaleId: '',
+        priceScaleId: 'volume',
+        priceLineVisible: false,
+        color: '#475569',
+      });
+      priceChartRef.current.priceScale('volume').applyOptions({
         scaleMargins: { top: 0.8, bottom: 0 },
+        borderVisible: false,
       });
     }
 
@@ -215,7 +223,7 @@ export const ChartViewport: React.FC<ChartViewportProps> = ({
     if (!packet || !mainSeriesRef.current) return;
     mainSeriesRef.current.setData(packet.candles as BarData[]);
     priceChartRef.current?.timeScale().fitContent();
-    volumeSeriesRef.current?.setData(packet.volume);
+    volumeSeriesRef.current?.setData(packet.volume as HistogramData<Time>[]);
     console.info('[ChartViewport] primary series updated', {
       candles: packet.candles.length,
       overlays: Object.keys(packet.overlays).length,
@@ -236,7 +244,7 @@ export const ChartViewport: React.FC<ChartViewportProps> = ({
           lineWidth: 2,
         });
       }
-      overlaySeriesRef.current[id].setData(seriesData);
+      overlaySeriesRef.current[id].setData(seriesData as LineData<Time>[]);
     });
 
     Object.keys(comparisonSeriesRef.current).forEach((key) => {
@@ -250,11 +258,11 @@ export const ChartViewport: React.FC<ChartViewportProps> = ({
       if (!comparisonSeriesRef.current[symbol]) {
         comparisonSeriesRef.current[symbol] = priceChartRef.current!.addLineSeries({
           color: '#60a5fa',
-          lineWidth: 1.5,
+          lineWidth: 2,
           lineStyle: LineStyle.Dotted,
         });
       }
-      comparisonSeriesRef.current[symbol].setData(seriesData);
+      comparisonSeriesRef.current[symbol].setData(seriesData as LineData<Time>[]);
     });
   }, [packet]);
 
@@ -271,7 +279,7 @@ export const ChartViewport: React.FC<ChartViewportProps> = ({
         color: '#22d3ee',
         lineWidth: 2,
       });
-      series.setData(seriesData);
+      series.setData(seriesData as LineData<Time>[]);
       oscillatorSeriesRef.current[id] = series;
     });
   }, [packet?.oscillators]);
